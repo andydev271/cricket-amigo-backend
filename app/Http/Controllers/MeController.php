@@ -30,6 +30,10 @@ class MeController extends Controller
             'interests.*' => [Rule::in(['batting', 'bowling', 'fielding', 'keeping'])],
         ]);
 
+        if (! $user->onboarded_at && (isset($data['interests']) || isset($data['roles']))) {
+            $data['onboarded_at'] = now();
+        }
+
         $user->update($data);
 
         return response()->json($this->payload($user));
