@@ -19,7 +19,7 @@ class UserController extends Controller
                 ->where('username', 'like', "%{$data['q']}%")
                 ->orWhere('name', 'like', "%{$data['q']}%"))
             ->limit(20)
-            ->get(['id', 'name', 'username', 'avatar_path', 'city']);
+            ->get(['id', 'name', 'username', 'city']);
 
         return response()->json($users->map(fn (User $u) => [
             'id' => $u->id,
@@ -39,7 +39,8 @@ class UserController extends Controller
             'avatar_url' => $user->avatar_url,
             'city' => $user->city,
             'country' => $user->country,
-            'roles' => $user->roles,
+            'sport_roles' => $user->sport_roles,
+            'roles' => $user->getRoleNames(),
             'interests' => $user->interests,
             'friend_count' => $user->friends()->count(),
         ]);

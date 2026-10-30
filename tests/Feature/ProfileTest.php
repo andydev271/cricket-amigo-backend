@@ -20,11 +20,12 @@ it('updates profile fields', function () {
         ->putJson('/api/me', [
             'city' => 'São Paulo',
             'country' => 'BR',
-            'roles' => ['player', 'coach'],
+            'sport_roles' => ['player', 'coach'],
             'interests' => ['batting', 'keeping'],
         ])->assertOk()
         ->assertJsonPath('city', 'São Paulo')
-        ->assertJsonPath('country', 'BR');
+        ->assertJsonPath('country', 'BR')
+        ->assertJsonPath('sport_roles', ['player', 'coach']);
 
     expect($user->fresh()->interests)->toBe(['batting', 'keeping']);
 });
@@ -36,17 +37,17 @@ it('validates locale against supported list', function () {
     $this->actingAs($user)->putJson('/api/me/locale', ['locale' => 'xx'])->assertUnprocessable();
 });
 
-it('uploads an avatar', function () {
+it('uploads an avatar via media library', function () {
     Storage::fake('public');
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->postJson('/api/me/avatar', [
             'avatar' => \Illuminate\Http\UploadedFile::fake()->image('me.jpg', 400, 400),
-        ])->assertOk();
+        ])->assertOk()
+        ->assertJsonStructure(['avatar_url']);
 
-    expect($user->fresh()->avatar_path)->not->toBeNull();
-    Storage::disk('public')->assertExists($user->fresh()->avatar_path);
+    expect($user->fresh()->getFirstMedia('avatar'))->not->toBeNull();
 });
 
 it('requires authentication', function () {

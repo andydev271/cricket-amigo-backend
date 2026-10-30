@@ -12,13 +12,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'username', 'email', 'password', 'avatar_path', 'locale', 'city', 'country', 'dominant_hand', 'roles', 'interests', 'onboarded_at'])]
+#[Fillable(['name', 'username', 'email', 'password', 'locale', 'city', 'country', 'dominant_hand', 'sport_roles', 'interests', 'onboarded_at'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, InteractsWithMedia, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -31,10 +35,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'onboarded_at' => 'datetime',
             'password' => 'hashed',
-            'roles' => 'array',
+            'sport_roles' => 'array',
             'interests' => 'array',
             'credits' => 'integer',
         ];
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar')->singleFile();
+        $this->addMediaCollection('reports');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(256)
+            ->height(256)
+            ->performOnCollections('avatar')
+            ->nonQueued();
     }
 
     public function devices(): HasMany
@@ -59,6 +78,6 @@ class User extends Authenticatable
 
     public function getAvatarUrlAttribute(): ?string
     {
-        return $this->avatar_path ? asset('storage/'.$this->avatar_path) : null;
+        return $this->getFirstMediaUrl('avatar', 'thumb') ?: $this->getFirstMediaUrl('avatar') ?: null;
     }
 }

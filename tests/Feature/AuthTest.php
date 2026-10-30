@@ -22,14 +22,14 @@ it('creates a guest user for a new device', function () {
         ->assertJsonStructure(['token', 'user' => ['id', 'name']]);
 
     expect(Device::count())->toBe(1)
-        ->and(User::count())->toBe(1);
+        ->and(User::count())->toBe(2); // device guest + seeded admin
 });
 
 it('reuses the user for an existing device', function () {
     $this->postJson('/api/auth/device', ['device_id' => 'dev-1']);
     $this->postJson('/api/auth/device', ['device_id' => 'dev-1']);
 
-    expect(User::count())->toBe(1);
+    expect(User::count())->toBe(2); // device guest + seeded admin
 });
 
 it('registers a user and links the device', function () {

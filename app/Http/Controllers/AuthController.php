@@ -31,10 +31,10 @@ class AuthController extends Controller
             'app_version' => $data['app_version'] ?? null,
         ]);
 
-        $user = $device->user ?? User::create([
+        $user = $device->user ?? tap(User::create([
             'name' => 'Guest',
             'locale' => $data['locale'] ?? 'en',
-        ])->refresh();
+        ]))->assignRole('member')->refresh();
 
         $device->user()->associate($user);
         $device->save();
@@ -56,14 +56,14 @@ class AuthController extends Controller
             'device_id' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $user = User::create([
+        $user = tap(User::create([
             'name' => $data['name'],
             'username' => $data['username'],
             'email' => $data['email'],
             'password' => $data['password'],
             'locale' => $data['locale'] ?? 'en',
             'onboarded_at' => now(),
-        ])->refresh();
+        ]))->assignRole('member')->refresh();
 
         if (! empty($data['device_id'])) {
             Device::where('device_id', $data['device_id'])->update(['user_id' => $user->id]);
@@ -138,6 +138,8 @@ class AuthController extends Controller
             'city' => $user->city,
             'country' => $user->country,
             'credits' => $user->credits,
+            'roles' => $user->getRoleNames(),
+            'is_admin' => $user->hasRole('super-admin'),
             'is_guest' => is_null($user->email),
             'onboarded' => ! is_null($user->onboarded_at),
         ];

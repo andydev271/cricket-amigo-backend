@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class MeController extends Controller
@@ -24,13 +23,13 @@ class MeController extends Controller
             'city' => ['sometimes', 'nullable', 'string', 'max:100'],
             'country' => ['sometimes', 'nullable', 'string', 'size:2'],
             'dominant_hand' => ['sometimes', 'nullable', Rule::in(['left', 'right'])],
-            'roles' => ['sometimes', 'nullable', 'array'],
-            'roles.*' => [Rule::in(['player', 'coach', 'scorer', 'fan'])],
+            'sport_roles' => ['sometimes', 'nullable', 'array'],
+            'sport_roles.*' => [Rule::in(['player', 'coach', 'scorer', 'fan'])],
             'interests' => ['sometimes', 'nullable', 'array'],
             'interests.*' => [Rule::in(['batting', 'bowling', 'fielding', 'keeping'])],
         ]);
 
-        if (! $user->onboarded_at && (isset($data['interests']) || isset($data['roles']))) {
+        if (! $user->onboarded_at && (isset($data['interests']) || isset($data['sport_roles']))) {
             $data['onboarded_at'] = now();
         }
 
@@ -52,20 +51,14 @@ class MeController extends Controller
 
     public function avatar(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $request->validate([
             'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
         $user = $request->user();
-        $path = $data['avatar']->store('avatars', 'public');
+        $user->addMediaFromRequest('avatar')->toMediaCollection('avatar');
 
-        if ($user->avatar_path) {
-            Storage::disk('public')->delete($user->avatar_path);
-        }
-
-        $user->update(['avatar_path' => $path]);
-
-        return response()->json($this->payload($user));
+        return response()->json($this->payload($user->refresh()));
     }
 
     private function payload($user): array
@@ -80,9 +73,11 @@ class MeController extends Controller
             'city' => $user->city,
             'country' => $user->country,
             'dominant_hand' => $user->dominant_hand,
-            'roles' => $user->roles,
+            'sport_roles' => $user->sport_roles,
             'interests' => $user->interests,
             'credits' => $user->credits,
+            'roles' => $user->getRoleNames(),
+            'is_admin' => $user->hasRole('super-admin'),
             'is_guest' => is_null($user->email),
             'onboarded' => ! is_null($user->onboarded_at),
             'friend_count' => $user->friends()->count(),

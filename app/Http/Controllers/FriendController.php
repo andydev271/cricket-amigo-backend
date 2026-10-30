@@ -14,7 +14,7 @@ class FriendController extends Controller
     public function index(Request $request): JsonResponse
     {
         $friends = $request->user()->friends()
-            ->select('users.id', 'users.name', 'users.username', 'users.avatar_path', 'users.city')
+            ->select('users.id', 'users.name', 'users.username', 'users.city')
             ->get()
             ->map(fn (User $u) => [
                 'id' => $u->id,
@@ -30,7 +30,7 @@ class FriendController extends Controller
     public function requests(Request $request): JsonResponse
     {
         $requests = $request->user()->friendRequestsReceived()
-            ->with('sender:id,name,username,avatar_path')
+            ->with('sender:id,name,username')
             ->where('status', 'pending')
             ->latest()
             ->get()
@@ -126,7 +126,7 @@ class FriendController extends Controller
             ->whereNotNull('email')
             ->when($me->city, fn ($q) => $q->orderByRaw('city = ? desc', [$me->city]))
             ->limit(20)
-            ->get(['id', 'name', 'username', 'avatar_path', 'city']);
+            ->get(['id', 'name', 'username', 'city']);
 
         return response()->json($suggestions->map(fn (User $u) => [
             'id' => $u->id,
