@@ -327,6 +327,8 @@ class ScoringService
                 'ended_at' => now(),
                 'result' => $this->result($match),
             ])->save();
+
+            app(GameService::class)->settlePredictions($match);
         }
     }
 

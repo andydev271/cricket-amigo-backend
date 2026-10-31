@@ -7,6 +7,7 @@ use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CreditsController;
 use App\Http\Controllers\FlagsController;
 use App\Http\Controllers\FriendController;
+use App\Http\Controllers\GameController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\TeamController;
@@ -83,4 +84,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/match-requests', [CommunityController::class, 'requests']);
     Route::post('/match-requests/{matchRequest}/respond', [CommunityController::class, 'respond']);
     Route::get('/leaderboards', [CommunityController::class, 'leaderboards']);
+
+    Route::get('/games/trivia', [GameController::class, 'trivia']);
+    Route::post('/games/trivia/answer', [GameController::class, 'triviaAnswer']);
+    Route::get('/games/scores', [GameController::class, 'topScores']);
+    Route::post('/games/scores', [GameController::class, 'score']);
+    Route::post('/matches/{match}/predict', [GameController::class, 'predict']);
+    Route::get('/matches/{match}/predict', [GameController::class, 'myPick']);
 });
