@@ -104,12 +104,12 @@ class MatchController extends Controller
             return $match;
         });
 
-        return response()->json($this->detail($match->fresh()), 201);
+        return response()->json($this->detail($match->fresh(), $request->user()), 201);
     }
 
-    public function show(CricketMatch $match): JsonResponse
+    public function show(Request $request, CricketMatch $match): JsonResponse
     {
-        return response()->json($this->detail($match));
+        return response()->json($this->detail($match, $request->user()));
     }
 
     /** Public live score — spectator data, no auth. */
@@ -133,7 +133,7 @@ class MatchController extends Controller
             $match->forceFill(['status' => 'live', 'started_at' => now()])->save();
         });
 
-        return response()->json($this->detail($match->fresh()));
+        return response()->json($this->detail($match->fresh(), $request->user()));
     }
 
     public function ball(Request $request, CricketMatch $match, Innings $innings): JsonResponse
@@ -199,11 +199,12 @@ class MatchController extends Controller
         return response()->json(['status' => $match->status]);
     }
 
-    private function detail(CricketMatch $match): array
+    private function detail(CricketMatch $match, ?\App\Models\User $user = null): array
     {
         $match->load(['players', 'innings']);
 
         return [
+            'can_score' => $user ? $match->canScore($user) : false,
             'id' => $match->id,
             'status' => $match->status,
             'team_a' => ['id' => $match->team_a_id, 'name' => $match->team_a_name],
