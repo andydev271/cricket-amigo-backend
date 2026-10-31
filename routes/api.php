@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CoachingPackController;
 use App\Http\Controllers\FlagsController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\MeController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/flags', [FlagsController::class, 'index']);
+Route::get('/coaching-packs', [CoachingPackController::class, 'index']);
 
 Route::prefix('auth')->group(function () {
     Route::post('/device', [AuthController::class, 'device']);
