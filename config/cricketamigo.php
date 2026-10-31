@@ -20,7 +20,7 @@ return [
         'features' => [
             'auth_device' => true,
             'auth_social' => false,
-            'coaching_packs' => false,
+            'coaching_packs' => true,
             'cloud_upload' => false,
             'streaming' => false,
             'tournaments' => false,
