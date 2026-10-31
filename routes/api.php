@@ -6,6 +6,7 @@ use App\Http\Controllers\CoachingPackController;
 use App\Http\Controllers\CreditsController;
 use App\Http\Controllers\FlagsController;
 use App\Http\Controllers\FriendController;
+use App\Http\Controllers\MatchController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamInviteController;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/flags', [FlagsController::class, 'index']);
 Route::get('/coaching-packs', [CoachingPackController::class, 'index']);
 Route::get('/invites/{token}', [TeamInviteController::class, 'show']);
+Route::get('/matches/{match}/score', [MatchController::class, 'score']);
 
 Route::prefix('auth')->group(function () {
     Route::post('/device', [AuthController::class, 'device']);
@@ -53,4 +55,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/me/clips', [ClipUploadController::class, 'index']);
     Route::post('/me/clips', [ClipUploadController::class, 'store']);
+
+    Route::get('/matches', [MatchController::class, 'index']);
+    Route::post('/matches', [MatchController::class, 'store']);
+    Route::get('/matches/{match}', [MatchController::class, 'show']);
+    Route::put('/matches/{match}', [MatchController::class, 'update']);
+    Route::post('/matches/{match}/start', [MatchController::class, 'start']);
+    Route::post('/matches/{match}/undo', [MatchController::class, 'undo']);
+    Route::post('/matches/{match}/stream', [MatchController::class, 'stream']);
+    Route::post('/matches/{match}/innings/{innings}/balls', [MatchController::class, 'ball']);
 });
