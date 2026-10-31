@@ -1,15 +1,20 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClipUploadController;
 use App\Http\Controllers\CoachingPackController;
+use App\Http\Controllers\CreditsController;
 use App\Http\Controllers\FlagsController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\MeController;
+use App\Http\Controllers\TeamController;
+use App\Http\Controllers\TeamInviteController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/flags', [FlagsController::class, 'index']);
 Route::get('/coaching-packs', [CoachingPackController::class, 'index']);
+Route::get('/invites/{token}', [TeamInviteController::class, 'show']);
 
 Route::prefix('auth')->group(function () {
     Route::post('/device', [AuthController::class, 'device']);
@@ -33,4 +38,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/friends/suggestions', [FriendController::class, 'suggestions']);
     Route::post('/friends/request/{user}', [FriendController::class, 'sendRequest']);
     Route::post('/friends/respond/{friendRequest}', [FriendController::class, 'respond']);
+
+    Route::get('/teams', [TeamController::class, 'index']);
+    Route::post('/teams', [TeamController::class, 'store']);
+    Route::get('/teams/{team}', [TeamController::class, 'show']);
+    Route::post('/teams/{team}/leave', [TeamController::class, 'leave']);
+    Route::delete('/teams/{team}/members/{user}', [TeamController::class, 'removeMember']);
+    Route::post('/teams/{team}/invites', [TeamInviteController::class, 'store']);
+    Route::post('/invites/{token}/accept', [TeamInviteController::class, 'accept']);
+
+    Route::get('/credits', [CreditsController::class, 'show']);
+    Route::get('/credits/history', [CreditsController::class, 'history']);
+    Route::post('/credits/earn', [CreditsController::class, 'earn']);
+
+    Route::get('/me/clips', [ClipUploadController::class, 'index']);
+    Route::post('/me/clips', [ClipUploadController::class, 'store']);
 });

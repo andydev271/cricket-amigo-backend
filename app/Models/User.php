@@ -76,6 +76,23 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(FriendRequest::class, 'sender_id');
     }
 
+    public function teams(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'team_members')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
+    public function creditTransactions(): HasMany
+    {
+        return $this->hasMany(CreditTransaction::class);
+    }
+
+    public function clipUploads(): HasMany
+    {
+        return $this->hasMany(ClipUpload::class);
+    }
+
     public function getAvatarUrlAttribute(): ?string
     {
         return $this->getFirstMediaUrl('avatar', 'thumb') ?: $this->getFirstMediaUrl('avatar') ?: null;
