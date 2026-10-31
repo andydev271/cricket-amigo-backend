@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClipUploadController;
 use App\Http\Controllers\CoachingPackController;
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CreditsController;
 use App\Http\Controllers\FlagsController;
 use App\Http\Controllers\FriendController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\MatchController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamInviteController;
+use App\Http\Controllers\TournamentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -64,4 +66,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/matches/{match}/undo', [MatchController::class, 'undo']);
     Route::post('/matches/{match}/stream', [MatchController::class, 'stream']);
     Route::post('/matches/{match}/innings/{innings}/balls', [MatchController::class, 'ball']);
+
+    Route::get('/tournaments', [TournamentController::class, 'index']);
+    Route::post('/tournaments', [TournamentController::class, 'store']);
+    Route::get('/tournaments/{tournament}', [TournamentController::class, 'show']);
+    Route::put('/tournaments/{tournament}', [TournamentController::class, 'update']);
+    Route::post('/tournaments/{tournament}/teams', [TournamentController::class, 'registerTeam']);
+    Route::post('/tournaments/{tournament}/fixtures', [TournamentController::class, 'generateFixtures']);
+    Route::get('/tournaments/{tournament}/standings', [TournamentController::class, 'standings']);
+
+    Route::post('/follows', [CommunityController::class, 'follow']);
+    Route::get('/looking-for', [CommunityController::class, 'board']);
+    Route::post('/looking-for', [CommunityController::class, 'post']);
+    Route::post('/looking-for/{post}/close', [CommunityController::class, 'closePost']);
+    Route::post('/teams/{team}/challenges', [CommunityController::class, 'challenge']);
+    Route::get('/match-requests', [CommunityController::class, 'requests']);
+    Route::post('/match-requests/{matchRequest}/respond', [CommunityController::class, 'respond']);
+    Route::get('/leaderboards', [CommunityController::class, 'leaderboards']);
 });
